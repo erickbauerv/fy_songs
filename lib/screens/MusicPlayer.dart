@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_import, implementation_imports, avoid_print
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_import, implementation_imports, avoid_print, avoid_unnecessary_containers
 import 'dart:ui';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -96,25 +96,22 @@ class _MusicPlayerState extends State<MusicPlayer> {
                       color: Colors.white,
                     ),
                   ),
-                  Slider.adaptive(
-                    onChanged: (v) {
-                      setState(() {
-                        value = v;
-                      });
-                    },
-                    min: 0.0,
-                    max: duration!.inSeconds.toDouble(),
-                    value: value,
-                    onChangeEnd: (newValue) async {
-                      setState(() {
-                        value = newValue;
-                        print(newValue);
-                      });
-                      player.pause();
-                      await player.seek(Duration(seconds: newValue.toInt()));
-                      await player.resume();
-                    },
-                    activeColor: Colors.white,
+                  Container(
+                    width: 220.0,
+                    child: Slider.adaptive(
+                      onChangeEnd: (new_value) async {
+                        setState(() {
+                          value = new_value;
+                          print(new_value);
+                        });
+                        await player.seek(Duration(seconds: new_value.toInt()));
+                      },
+                      min: 0.0,
+                      max: 214.0,
+                      value: value,
+                      onChanged:  (value) {},
+                      activeColor: Colors.white,
+                    ),
                   ),
                   // Show the total duration of the song
                   Text(
@@ -124,7 +121,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     ),
                   ),
                 ],
-              ),
+              ),  
               SizedBox(
                 height: 30.0,
               ),
@@ -134,7 +131,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(60.0),
                   color: Colors.black54,
-                  border: Border.all(color: Colors.pink),
+                  border: Border.all(color: Color.fromARGB(255, 125, 70, 236)),
                 ),
                 child: InkWell(
                   onTap: () async {
