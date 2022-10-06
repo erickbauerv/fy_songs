@@ -7,32 +7,32 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class MusicPlayer extends StatefulWidget {
-  const MusicPlayer({super.key});
+  const MusicPlayer({Key? key}) : super(key: key);
 
   @override
   State<MusicPlayer> createState() => _MusicPlayerState();
 }
 
 class _MusicPlayerState extends State<MusicPlayer> {
-  // Variables
+  //setting the project url
+  String img_cover_url =
+      "https://i.pinimg.com/736x/a7/a9/cb/a7a9cbcefc58f5b677d8c480cf4ddc5d.jpg";
+
   bool isPlaying = false;
   double value = 0;
-
-  // Create an instance of the music player
   final player = AudioPlayer();
+  Duration? duration = new Duration();
+  IconData iconPlayer =  Icons.play_arrow;
 
-  // Setting the duration
-  Duration? duration = Duration(seconds: 0);
-
-  // Create a function to initiate the music into the player
   void initPlayer() async {
-    await player.setSource(AssetSource("The Outside.mp3"));
-
+    await player.setSource(AssetSource("TheOutside.mp3"));
     duration = await player.getDuration();
   }
 
+  //init the player
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     initPlayer();
   }
@@ -42,9 +42,10 @@ class _MusicPlayerState extends State<MusicPlayer> {
     return Scaffold(
       body: Stack(
         children: [
-          // First add some decoration
           Container(
             constraints: BoxConstraints.expand(),
+            height: 300.0,
+            width: 300.0,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage("assets/scaled_and_icy.jpg"),
@@ -52,19 +53,17 @@ class _MusicPlayerState extends State<MusicPlayer> {
               ),
             ),
             child: BackdropFilter(
-              // Add blur
               filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
               child: Container(
-                color: Colors.black54,
+                color: Colors.black.withOpacity(0.6),
               ),
             ),
           ),
-
-          // Layout of the app
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              //setting the music cover
               ClipRRect(
                 borderRadius: BorderRadius.circular(30.0),
                 child: Image.asset(
@@ -73,32 +72,32 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: 10.0,
               ),
               Text(
                 "The Outside",
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 36.0,
-                  letterSpacing: 6,
-                ),
+                    color: Colors.white, fontSize: 36, letterSpacing: 6),
               ),
+              //Setting the seekbar
               SizedBox(
                 height: 50.0,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Will be modified while the music streams
                   Text(
-                    "${(value / 60).floor()} : ${(value % 60).floor()}",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+                    "0${(value / 60).floor()}: ${(value % 60).floor()}",
+                    style: TextStyle(color: Colors.white),
                   ),
                   Container(
-                    width: 220.0,
+                    width: 210.0,
                     child: Slider.adaptive(
+                      onChanged: (v) {
+                        setState(() {
+                          value = v;
+                        });
+                      },
                       onChangeEnd: (new_value) async {
                         setState(() {
                           value = new_value;
@@ -107,60 +106,112 @@ class _MusicPlayerState extends State<MusicPlayer> {
                         await player.seek(Duration(seconds: new_value.toInt()));
                       },
                       min: 0.0,
-                      max: 214.0,
                       value: value,
-                      onChanged:  (value) {},
+                      max: 214.0,
                       activeColor: Colors.white,
                     ),
                   ),
-                  // Show the total duration of the song
                   Text(
-                    "${duration!.inMinutes} : ${duration!.inSeconds % 60}",
-                    style: TextStyle(
-                      color: Colors.white,
+                    "0${duration!.inMinutes} : ${duration!.inSeconds % 60}",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+              //setting the player controller
+              SizedBox(
+                height: 60.0,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(60.0),
+                      color: Colors.black87,
+                      border: Border.all(color: Colors.white38),
+                    ),
+                    width: 50.0,
+                    height: 50.0,
+                    child: InkWell(
+                      onTapDown: (details) {
+                        player.setPlaybackRate(0.5);
+                      },
+                      onTapUp: (details) {
+                        player.setPlaybackRate(1);
+                      },
+                      child: Center(
+                        child: Icon(
+                          Icons.fast_rewind_rounded,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(60.0),
+                      color: Colors.black87,
+                      border: Border.all(color: Colors.pink),
+                    ),
+                    width: 60.0,
+                    height: 60.0,
+                    child: InkWell(
+                      onTap: () async {
+                        if(isPlaying) {
+                          setState(() {
+                            iconPlayer = Icons.play_arrow;
+                          });
+                          await player.pause();
+                          isPlaying = !isPlaying;
+                        } else {
+                          setState(() {
+                              iconPlayer = Icons.pause;
+                          });
+                          await player.resume();
+
+                          player.onPositionChanged.listen((position) { 
+                            setState(() {
+                              value = position.inSeconds.toDouble();
+                            });
+                          });
+                          isPlaying = !isPlaying;
+                        }
+                      },
+                      child: Center(
+                        child: (
+                          Icon(iconPlayer, color: Colors.white)
+                        )
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(60.0),
+                      color: Colors.black87,
+                      border: Border.all(color: Colors.white38),
+                    ),
+                    width: 50.0,
+                    height: 50.0,
+                    child: InkWell(
+                      onTapDown: (details) {
+                        player.setPlaybackRate(2);
+                      },
+                      onTapUp: (details) {
+                        player.setPlaybackRate(1);
+                      },
+                      child: Center(
+                        child: Icon(
+                          Icons.fast_forward_rounded,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
-              ),  
-              SizedBox(
-                height: 30.0,
-              ),
-              Container(
-                width: 60.0,
-                height: 60.0,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(60.0),
-                  color: Colors.black54,
-                  border: Border.all(color: Color.fromARGB(255, 125, 70, 236)),
-                ),
-                child: InkWell(
-                  onTap: () async {
-                    if (isPlaying) {
-                      await player.pause();
-                      setState(() {
-                        isPlaying = false;
-                      });
-                    } else {
-                      await player.resume();
-                      setState(() {
-                        isPlaying = true;
-                      });
-                      // Track the value
-                      player.onPositionChanged.listen((position) {
-                        setState(() {
-                          value = position.inSeconds.toDouble();
-                        });
-                      });
-                    }
-                  },
-                  child: Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                  ),
-                ),
               )
             ],
-          )
+          ),
         ],
       ),
     );
