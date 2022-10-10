@@ -13,7 +13,15 @@ List<Song> songs = [
       image: const AssetImage("assets/sick_of_being_honest.jpg"),
       audio: AssetSource("SickOfBeingHonest.mp3")),
   Song(
-      name: "The Outside3",
-      image: const AssetImage("assets/scaled_and_icy.jpg"),
-      audio: AssetSource("TheOutside.mp3")),
+      name: "Enemy",
+      image: const AssetImage("assets/enemy.jpg"),
+      audio: AssetSource("Enemy.mp3")),
+  Song(
+      name: "Gimme Love",
+      image: const AssetImage("assets/gimme_love.jpg"),
+      audio: AssetSource("LimboDoMeninoSemOlhos.mp3")),
+  Song(
+      name: "Menino sem Olhos",
+      image: const AssetImage("assets/limbo_do_menino_sem_olhos.jpg"),
+      audio: AssetSource("LimboDoMeninoSemOlhos.mp3")),
 ];

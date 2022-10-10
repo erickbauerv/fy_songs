@@ -15,6 +15,7 @@ class MusicPlayer extends StatefulWidget {
 }
 
 class _MusicPlayerState extends State<MusicPlayer> {
+  var i = 0;
   final player = AudioPlayer();
   bool isPlaying = false;
   double timePosition = 0;
@@ -134,7 +135,13 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     height: 50.0,
                     child: InkWell(
                       onTap: () async {
-                        songPlaying = songs.elementAt(0);
+                        if (i >= 1) {
+                          i = i - 1;
+                          songPlaying = songs.elementAt(i);
+                        } else {
+                          i = songs.length;
+                          songPlaying = songs.elementAt(i);
+                        }
                         initPlayer();
                       },
                       child: Center(
@@ -190,7 +197,13 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     height: 50.0,
                     child: InkWell(
                       onTap: () async {
-                        songPlaying = songs.elementAt(1);
+                        if (i < songs.length && i >= 0) {
+                          i = i + 1;
+                          songPlaying = songs.elementAt(i);
+                        } else {
+                          i = 0;
+                          songPlaying = songs.elementAt(i);
+                        }
                         initPlayer();
                       },
                       child: Center(
