@@ -1,10 +1,11 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_import, implementation_imports, avoid_print, avoid_unnecessary_containers
 import 'dart:ui';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import '../model/ListOfSongs.dart';
+import '../model/Song.dart';
 
 class MusicPlayer extends StatefulWidget {
   const MusicPlayer({Key? key}) : super(key: key);
@@ -14,19 +15,17 @@ class MusicPlayer extends StatefulWidget {
 }
 
 class _MusicPlayerState extends State<MusicPlayer> {
-  //setting the project url
-  String img_cover_url =
-      "https://i.pinimg.com/736x/a7/a9/cb/a7a9cbcefc58f5b677d8c480cf4ddc5d.jpg";
-
-  bool isPlaying = false;
-  double value = 0;
   final player = AudioPlayer();
-  Duration? duration = new Duration();
-  IconData iconPlayer =  Icons.play_arrow;
+  bool isPlaying = false;
+  double timePosition = 0;
+  Duration? timeDuration = Duration.zero;
+  IconData iconPlayer = Icons.play_arrow;
+  Song songPlaying = songs.elementAt(0);
 
-  void initPlayer() async {
-    await player.setSource(AssetSource("TheOutside.mp3"));
-    duration = await player.getDuration();
+  Future initPlayer() async {
+    player.setReleaseMode(ReleaseMode.loop);
+    await player.setSource(songPlaying.audio);
+    timeDuration = await player.getDuration();
   }
 
   //init the player
@@ -48,7 +47,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
             width: 300.0,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/scaled_and_icy.jpg"),
+                image: songPlaying.image,
                 fit: BoxFit.cover,
               ),
             ),
@@ -66,8 +65,8 @@ class _MusicPlayerState extends State<MusicPlayer> {
               //setting the music cover
               ClipRRect(
                 borderRadius: BorderRadius.circular(30.0),
-                child: Image.asset(
-                  "assets/scaled_and_icy.jpg",
+                child: Image(
+                  image: songPlaying.image,
                   width: 250.0,
                 ),
               ),
@@ -75,7 +74,8 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 height: 10.0,
               ),
               Text(
-                "The Outside",
+                songPlaying.name,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     color: Colors.white, fontSize: 36, letterSpacing: 6),
               ),
@@ -87,7 +87,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "0${(value / 60).floor()}: ${(value % 60).floor()}",
+                    "0${(timePosition / 60).floor()}: ${(timePosition % 60).floor()}",
                     style: TextStyle(color: Colors.white),
                   ),
                   Container(
@@ -95,24 +95,24 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     child: Slider.adaptive(
                       onChanged: (v) {
                         setState(() {
-                          value = v;
+                          timePosition = v;
                         });
                       },
                       onChangeEnd: (new_value) async {
                         setState(() {
-                          value = new_value;
+                          timePosition = new_value;
                           print(new_value);
                         });
                         await player.seek(Duration(seconds: new_value.toInt()));
                       },
                       min: 0.0,
-                      value: value,
+                      value: timePosition,
                       max: 214.0,
                       activeColor: Colors.white,
                     ),
                   ),
                   Text(
-                    "0${duration!.inMinutes} : ${duration!.inSeconds % 60}",
+                    "0${timeDuration!.inMinutes} : ${timeDuration!.inSeconds % 60}",
                     style: TextStyle(color: Colors.white),
                   ),
                 ],
@@ -133,11 +133,9 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     width: 50.0,
                     height: 50.0,
                     child: InkWell(
-                      onTapDown: (details) {
-                        player.setPlaybackRate(0.5);
-                      },
-                      onTapUp: (details) {
-                        player.setPlaybackRate(1);
+                      onTap: () async {
+                        songPlaying = songs.elementAt(0);
+                        initPlayer();
                       },
                       child: Center(
                         child: Icon(
@@ -158,7 +156,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     height: 60.0,
                     child: InkWell(
                       onTap: () async {
-                        if(isPlaying) {
+                        if (isPlaying) {
                           setState(() {
                             iconPlayer = Icons.play_arrow;
                           });
@@ -166,23 +164,20 @@ class _MusicPlayerState extends State<MusicPlayer> {
                           isPlaying = !isPlaying;
                         } else {
                           setState(() {
-                              iconPlayer = Icons.pause;
+                            iconPlayer = Icons.pause;
                           });
                           await player.resume();
 
-                          player.onPositionChanged.listen((position) { 
+                          player.onPositionChanged.listen((position) {
                             setState(() {
-                              value = position.inSeconds.toDouble();
+                              timePosition = position.inSeconds.toDouble();
                             });
                           });
                           isPlaying = !isPlaying;
                         }
                       },
                       child: Center(
-                        child: (
-                          Icon(iconPlayer, color: Colors.white)
-                        )
-                      ),
+                          child: (Icon(iconPlayer, color: Colors.white))),
                     ),
                   ),
                   Container(
@@ -194,11 +189,9 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     width: 50.0,
                     height: 50.0,
                     child: InkWell(
-                      onTapDown: (details) {
-                        player.setPlaybackRate(2);
-                      },
-                      onTapUp: (details) {
-                        player.setPlaybackRate(1);
+                      onTap: () async {
+                        songPlaying = songs.elementAt(1);
+                        initPlayer();
                       },
                       child: Center(
                         child: Icon(
